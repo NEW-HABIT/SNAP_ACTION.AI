@@ -1,0 +1,44 @@
+{
+  "entities": {
+    "scans": {
+      "title": "Scans",
+      "description": "Scanned screenshot analyses and extracted actionable insights synced in real-time.",
+      "properties": {
+        "title": { "type": "string", "description": "Title of extracted item" },
+        "imageUrl": { "type": "string", "description": "URL or base64 image representation" },
+        "category": { "type": "string", "description": "Primary category: events, payments, orders, locations, tasks, flights" },
+        "timestamp": { "type": "string", "description": "ISO timestamp of creation" },
+        "roomCode": { "type": "string", "description": "Shared real-time device sync room code" },
+        "status": { "type": "string", "description": "Processing status: analyzing, completed, failed" },
+        "confidence": { "type": "number", "description": "AI confidence percentage (e.g., 98)" },
+        "rawText": { "type": "string", "description": "Raw text extracted from screenshot" },
+        "insights": { "type": "array", "description": "List of extracted actionable items" },
+        "deviceInfo": { "type": "object", "description": "Metadata of device that uploaded scan" },
+        "userId": { "type": "string", "description": "User or anonymous device ID" }
+      }
+    },
+    "devices": {
+      "title": "Devices",
+      "description": "Active connected devices syncing in real-time.",
+      "properties": {
+        "deviceName": { "type": "string", "description": "Name of device (e.g. iPhone 15, Chrome Mac)" },
+        "deviceType": { "type": "string", "description": "mobile, desktop, tablet" },
+        "lastActive": { "type": "string", "description": "ISO timestamp of last heartbeat" },
+        "roomCode": { "type": "string", "description": "Joined sync room code" },
+        "isOnline": { "type": "boolean", "description": "Current connection status" }
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Real-time alerts and actionable reminders.",
+      "properties": {
+        "title": { "type": "string", "description": "Notification header" },
+        "message": { "type": "string", "description": "Detailed alert message" },
+        "type": { "type": "string", "description": "event, order, payment, location, task" },
+        "timestamp": { "type": "string", "description": "ISO timestamp" },
+        "read": { "type": "boolean", "description": "Read status" },
+        "roomCode": { "type": "string", "description": "Sync room code" }
+      }
+    }
+  }
+}

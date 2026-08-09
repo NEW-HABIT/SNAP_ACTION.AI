@@ -1,0 +1,6 @@
+{
+  "name": "Screenshot to Action",
+  "description": "Extract actionable items like events, deliveries, payments, and locations from screenshots with real-time multi-device sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
