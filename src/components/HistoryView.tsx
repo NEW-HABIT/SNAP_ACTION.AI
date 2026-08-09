@@ -68,34 +68,31 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
   );
 
   return (
-    <div className="flex flex-col w-full max-w-lg mx-auto pb-28 pt-20 animate-fade-in">
+    <div className="flex flex-col w-full max-w-4xl mx-auto pb-28 pt-20 animate-fade-in px-4">
       {/* Search Section */}
-      <div className="px-4 pb-3">
-        <div className="flex items-center bg-[#FFFFFF] rounded-xl px-4 py-2.5 shadow-2xs focus-within:shadow-xs transition-shadow border border-[#E2E8F0]">
-          <span className="material-symbols-outlined text-[#64748B] mr-2">search</span>
+      <div className="pb-3">
+        <div className="flex items-center bg-white dark:bg-slate-900 rounded-xl px-4 py-2.5 shadow-2xs focus-within:shadow-xs transition-shadow border border-slate-200 dark:border-slate-800">
+          <span className="material-symbols-outlined text-slate-400 mr-2">search</span>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search your information..."
-            className="flex-1 bg-transparent outline-none font-body-md text-sm text-[#0F172A] placeholder:text-[#94A3B8]"
+            placeholder="Search your history, orders, events..."
+            className="flex-1 bg-transparent outline-none font-body-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="text-[#94A3B8] hover:text-[#0F172A] mr-1"
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-white mr-1"
             >
               ✕
             </button>
           )}
-          <span className="material-symbols-outlined text-[#2563EB] bg-[#DBEAFE] rounded-lg p-1.5 cursor-pointer hover:bg-[#BFDBFE] transition-colors text-[18px]">
-            mic
-          </span>
         </div>
       </div>
 
       {/* Category Filter Chips */}
-      <div className="flex gap-2 overflow-x-auto px-4 pb-4 no-scrollbar">
+      <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
         {categories.map((cat) => {
           const isSelected = selectedCategory === cat.id;
           return (
@@ -104,8 +101,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
               onClick={() => setSelectedCategory(cat.id)}
               className={`px-3.5 py-1.5 rounded-lg font-label-md text-xs font-medium whitespace-nowrap transition-all border ${
                 isSelected
-                  ? "bg-[#2563EB] text-white border-[#2563EB] shadow-2xs"
-                  : "bg-[#FFFFFF] text-[#1E293B] border-[#E2E8F0] hover:bg-[#F8FAFC]"
+                  ? "bg-blue-600 text-white border-blue-600 shadow-2xs"
+                  : "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
               {cat.label}
@@ -115,14 +112,14 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
       </div>
 
       {/* History List */}
-      <div className="flex flex-col gap-5 px-4">
+      <div className="flex flex-col gap-5">
         {filteredScans.length === 0 ? (
-          <div className="bg-[#FFFFFF] rounded-2xl p-8 text-center border border-[#E2E8F0] shadow-2xs">
-            <span className="material-symbols-outlined text-4xl text-[#94A3B8] mb-2">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 text-center border border-slate-200 dark:border-slate-800 shadow-2xs">
+            <span className="material-symbols-outlined text-4xl text-slate-400 mb-2">
               search_off
             </span>
-            <p className="font-headline-md text-base text-[#0F172A]">No matching records</p>
-            <p className="text-xs text-[#64748B] mt-1">
+            <p className="font-headline-md text-base text-slate-900 dark:text-white font-bold">No matching records</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Try adjusting your search query or filter category.
             </p>
           </div>
@@ -131,7 +128,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             {/* Group: Today */}
             {todayScans.length > 0 && (
               <div className="flex flex-col gap-2">
-                <h3 className="font-label-md text-xs font-bold text-[#64748B] uppercase tracking-wider px-1">
+                <h3 className="font-label-md text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">
                   Today
                 </h3>
                 {todayScans.map((scan) => renderHistoryItem(scan))}
@@ -141,7 +138,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             {/* Group: Yesterday */}
             {yesterdayScans.length > 0 && (
               <div className="flex flex-col gap-2">
-                <h3 className="font-label-md text-xs font-bold text-[#64748B] uppercase tracking-wider px-1">
+                <h3 className="font-label-md text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">
                   Yesterday
                 </h3>
                 {yesterdayScans.map((scan) => renderHistoryItem(scan))}
@@ -151,7 +148,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             {/* Group: Earlier */}
             {earlierScans.length > 0 && (
               <div className="flex flex-col gap-2">
-                <h3 className="font-label-md text-xs font-bold text-[#64748B] uppercase tracking-wider px-1">
+                <h3 className="font-label-md text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">
                   Earlier
                 </h3>
                 {earlierScans.map((scan) => renderHistoryItem(scan))}
@@ -169,7 +166,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
     return (
       <div key={scan.id} className="relative overflow-hidden rounded-xl">
         {/* Background Delete Action */}
-        <div className="absolute inset-0 bg-[#EF4444] rounded-xl flex items-center justify-end pr-6">
+        <div className="absolute inset-0 bg-rose-600 rounded-xl flex items-center justify-end pr-6">
           <button
             onClick={() => onDeleteScan(scan.id)}
             className="flex flex-col items-center gap-1 text-white text-xs font-bold"
@@ -182,18 +179,18 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
         {/* Foreground Card */}
         <div
           onClick={() => onSelectScan(scan)}
-          className={`bg-[#FFFFFF] rounded-xl p-3 flex gap-3 shadow-2xs border border-[#E2E8F0] items-center relative transition-transform duration-300 cursor-pointer hover:shadow-xs ${
+          className={`bg-white dark:bg-slate-900 rounded-xl p-3 flex gap-3 shadow-2xs border border-slate-200 dark:border-slate-800 items-center relative transition-transform duration-300 cursor-pointer hover:shadow-xs ${
             isSwiped ? "-translate-x-20" : "translate-x-0"
           }`}
         >
-          <div className="relative w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-[#F1F5F9] border border-[#E2E8F0]">
+          <div className="relative w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
             <img
               src={scan.imageUrl}
               alt={scan.title}
               className="w-full h-full object-cover"
             />
-            <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-xs">
-              <div className="bg-[#2563EB] text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px]">
+            <div className="absolute -bottom-1 -right-1 bg-white dark:bg-slate-900 rounded-full p-0.5 shadow-xs">
+              <div className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px]">
                 <span className="material-symbols-outlined text-[10px]">
                   {scan.category === "events"
                     ? "event"
@@ -211,24 +208,24 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
 
           <div className="flex-1 min-w-0 flex flex-col justify-center">
             <div className="flex items-center justify-between mb-0.5">
-              <span className="font-label-sm text-[10px] font-bold text-[#2563EB] uppercase">
+              <span className="font-label-sm text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase">
                 {scan.category}
               </span>
-              <span className="text-[10px] text-[#94A3B8]">
+              <span className="text-[10px] text-slate-400">
                 {new Date(scan.timestamp).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
               </span>
             </div>
-            <h4 className="font-body-md text-sm font-semibold text-[#0F172A] truncate">
+            <h4 className="font-body-md text-sm font-semibold text-slate-900 dark:text-white truncate">
               {scan.title}
             </h4>
-            <div className="flex items-center justify-between mt-0.5">
-              <span className="text-[11px] text-[#64748B] truncate max-w-[180px]">
+            <div className="flex items-center justify-between mt-0.5 gap-2">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[220px]">
                 {scan.insights[0]?.subtitle || scan.rawText || "Extracted Item"}
               </span>
-              <span className="text-[10px] text-[#1E40AF] font-semibold bg-[#DBEAFE] px-1.5 py-0.5 rounded">
+              <span className="text-[10px] text-blue-700 dark:text-blue-300 font-semibold bg-blue-100 dark:bg-blue-950 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800/50">
                 {scan.deviceInfo?.deviceName || "Synced"}
               </span>
             </div>
@@ -240,7 +237,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
               e.stopPropagation();
               setSwipedScanId(isSwiped ? null : scan.id);
             }}
-            className="text-[#94A3B8] hover:text-[#0F172A] p-1"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1"
           >
             <span className="material-symbols-outlined text-[18px]">
               {isSwiped ? "close" : "more_vert"}

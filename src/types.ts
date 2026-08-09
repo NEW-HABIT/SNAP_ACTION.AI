@@ -1,5 +1,15 @@
 export type CategoryType = 'all' | 'events' | 'payments' | 'orders' | 'locations' | 'tasks' | 'flights';
 
+export type ActionType = 'tracking' | 'calendar' | 'maps' | 'expense' | 'todo' | 'webhook';
+
+export interface CompoundAction {
+  id: string;
+  label: string;
+  type: ActionType;
+  url?: string;
+  payload?: Record<string, any>;
+}
+
 export interface InsightItem {
   id: string;
   type: 'event' | 'payment' | 'order' | 'location' | 'task' | 'flight';
@@ -10,8 +20,9 @@ export interface InsightItem {
   location?: string;
   trackingNumber?: string;
   amount?: string;
-  actionLabel: string;
-  actionType: 'tracking' | 'calendar' | 'maps' | 'expense' | 'todo';
+  actionLabel?: string;
+  actionType?: ActionType;
+  actions?: CompoundAction[];
   completed?: boolean;
 }
 

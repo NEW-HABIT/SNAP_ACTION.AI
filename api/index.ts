@@ -100,7 +100,7 @@ app.post("/api/analyze", async (req, res) => {
       ? imageBase64
       : `data:${imageMime};base64,${cleanBase64}`;
 
-    const systemPrompt = `You are an expert Hugging Face AI assistant specialized in analyzing screenshots and extracting structured actionable insights.
+    const systemPrompt = `You are an expert AI vision assistant specialized in analyzing screenshots and extracting structured multi-intent actionable insights.
 Extract all actionable items from the screenshot image such as:
 1. Calendar Events (meetings, workshops, webinars, appointments)
 2. Delivery & Orders (Amazon orders, tracking numbers, package delivery dates)
@@ -127,8 +127,22 @@ Return strictly valid JSON matching this schema:
       "location": "Optional location name or address",
       "trackingNumber": "Optional tracking code",
       "amount": "Optional price e.g. $6.50",
-      "actionLabel": "Button text e.g. Track Package | Add to Calendar | Open in Maps | Log Expense | Complete Task",
+      "actionLabel": "Primary action button text e.g. Track Package | Add to Calendar | Open in Maps",
       "actionType": "one of: tracking | calendar | maps | expense | todo",
+      "actions": [
+        {
+          "id": "act-1",
+          "label": "First compound action label e.g. Add to Calendar",
+          "type": "calendar",
+          "url": "Optional direct URL"
+        },
+        {
+          "id": "act-2",
+          "label": "Second compound action label e.g. Track Flight",
+          "type": "tracking",
+          "url": "Optional tracking URL"
+        }
+      ],
       "completed": false
     }
   ]
@@ -282,6 +296,155 @@ Do not wrap response in markdown codeblocks if possible. Return ONLY valid JSON 
     return res.status(500).json({
       error: "Failed to analyze image with Hugging Face AI",
       details: error.message || "Unknown error",
+    });
+  }
+});
+
+// In-memory room store (for multi-device sync across internet)
+const roomStore: Record<string, { scans: any[]; devices: any[]; notifications: any[] }> = {};
+
+function getRoom(code: string) {
+  const roomCode = code || "default";
+  if (!roomStore[roomCode]) {
+    roomStore[roomCode] = { scans: [], devices: [], notifications: [] };
+  }
+  return roomStore[roomCode];
+}
+
+// GET /api/room/sync?roomCode=default
+app.get("/api/room/sync", (req, res) => {
+  const roomCode = (req.query.roomCode as string) || "default";
+  const room = getRoom(roomCode);
+  
+  // Clean inactive devices (older than 25 seconds)
+  const now = Date.now();
+  room.devices = room.devices.filter(
+    (d) => d.lastActive && now - new Date(d.lastActive).getTime() < 25000
+  );
+
+  return res.json({
+    success: true,
+    roomCode,
+    scans: room.scans,
+    devices: room.devices,
+    notifications: room.notifications,
+  });
+});
+
+// POST /api/room/scans
+app.post("/api/room/scans", (req, res) => {
+  const { roomCode, scan } = req.body;
+  if (!scan || !scan.id) {
+    return res.status(400).json({ error: "Invalid scan object" });
+  }
+  const room = getRoom(roomCode);
+  const idx = room.scans.findIndex((s) => s.id === scan.id);
+  if (idx >= 0) {
+    room.scans[idx] = { ...room.scans[idx], ...scan };
+  } else {
+    room.scans.unshift(scan);
+  }
+  return res.json({ success: true, scans: room.scans });
+});
+
+// DELETE /api/room/scans
+app.post("/api/room/delete-scan", (req, res) => {
+  const { roomCode, scanId } = req.body;
+  const room = getRoom(roomCode);
+  room.scans = room.scans.filter((s) => s.id !== scanId);
+  return res.json({ success: true, scans: room.scans });
+});
+
+// POST /api/room/heartbeat
+app.post("/api/room/heartbeat", (req, res) => {
+  const { roomCode, device } = req.body;
+  if (!device || !device.id) {
+    return res.status(400).json({ error: "Invalid device object" });
+  }
+  const room = getRoom(roomCode);
+  const now = Date.now();
+  // Filter out any devices inactive for > 25 seconds
+  room.devices = room.devices.filter(
+    (d) => d.id === device.id || (d.lastActive && now - new Date(d.lastActive).getTime() < 25000)
+  );
+  const idx = room.devices.findIndex((d) => d.id === device.id);
+  const updatedDevice = {
+    ...device,
+    lastActive: new Date().toISOString(),
+    isOnline: true,
+  };
+  if (idx >= 0) {
+    room.devices[idx] = updatedDevice;
+  } else {
+    room.devices.push(updatedDevice);
+  }
+  return res.json({ success: true, devices: room.devices });
+});
+
+// POST /api/room/notifications
+app.post("/api/room/notifications", (req, res) => {
+  const { roomCode, notification, action, notificationId } = req.body;
+  const room = getRoom(roomCode);
+  if (action === "read" && notificationId) {
+    const idx = room.notifications.findIndex((n) => n.id === notificationId);
+    if (idx >= 0) {
+      room.notifications[idx].read = true;
+    }
+  } else if (notification && notification.id) {
+    const idx = room.notifications.findIndex((n) => n.id === notification.id);
+    if (idx >= 0) {
+      room.notifications[idx] = notification;
+    } else {
+      room.notifications.unshift(notification);
+    }
+  }
+  return res.json({ success: true, notifications: room.notifications });
+});
+
+// POST /api/room/clear
+app.post("/api/room/clear", (req, res) => {
+  const { roomCode } = req.body;
+  const room = getRoom(roomCode);
+  room.scans = [];
+  room.notifications = [];
+  room.devices = [];
+  return res.json({ success: true });
+});
+
+// POST /api/dispatch-webhook (Dispatches structured entity payload to user custom Webhook)
+app.post("/api/dispatch-webhook", async (req, res) => {
+  try {
+    const { webhookUrl, payload } = req.body;
+    if (!webhookUrl) {
+      return res.status(400).json({ success: false, error: "Missing webhookUrl" });
+    }
+
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "ScreenshotToAction-WebhookDispatcher/1.0",
+      },
+      body: JSON.stringify(payload || {}),
+    });
+
+    if (response.ok) {
+      return res.json({
+        success: true,
+        message: "Webhook dispatched successfully!",
+        status: response.status,
+      });
+    } else {
+      const errText = await response.text();
+      return res.status(response.status).json({
+        success: false,
+        error: `Webhook returned status ${response.status}: ${errText}`,
+      });
+    }
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      error: `Failed to dispatch webhook: ${error.message || "Unknown error"}`,
     });
   }
 });

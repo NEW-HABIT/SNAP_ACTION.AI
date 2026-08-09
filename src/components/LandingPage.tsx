@@ -64,11 +64,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-28 space-y-12 animate-fade-in">
       {/* SaaS Hero Section */}
       <section className="relative pt-6 pb-4 text-center max-w-4xl mx-auto flex flex-col items-center">
-        {/* Pulsing Hugging Face Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FEF3C7] dark:bg-amber-950/60 border border-[#FDE68A] dark:border-amber-800/60 text-[#D97706] dark:text-amber-300 text-xs font-bold shadow-xs mb-6 animate-pulse">
-          <span className="text-sm">🤗</span>
-          <span>Powered by Hugging Face Vision AI</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
+        {/* Pulsing AI Badge */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-950/60 border border-blue-800/60 text-blue-300 text-xs font-bold shadow-xs mb-6 animate-pulse">
+          <span className="text-sm">✨</span>
+          <span>Powered by Smart AI Vision</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
         </div>
 
         {/* Hero Title */}
@@ -169,97 +169,99 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
       {/* Feature Grid Section */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-2">
-          <div className="w-10 h-10 rounded-xl bg-[#DBEAFE] dark:bg-blue-950 text-[#2563EB] flex items-center justify-center text-xl font-bold">
-            🤗
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+          <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl font-bold border border-blue-200 dark:border-blue-800/50">
+            ✨
           </div>
-          <h3 className="font-bold text-base text-[#0F172A] dark:text-white">
-            Hugging Face Vision AI
+          <h3 className="font-bold text-base text-slate-900 dark:text-white">
+            Smart Vision AI
           </h3>
-          <p className="text-xs text-[#64748B] dark:text-slate-400 leading-relaxed">
-            Multi-modal vision analysis parses images using Qwen & Llama 3.2 vision models with precision.
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Multi-modal vision analysis parses images and extracts actionable tasks with high precision.
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-2">
-          <div className="w-10 h-10 rounded-xl bg-[#D1FAE5] dark:bg-emerald-950 text-[#059669] flex items-center justify-center">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+          <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-800/50">
             <span className="material-symbols-outlined text-2xl">calendar_month</span>
           </div>
-          <h3 className="font-bold text-base text-[#0F172A] dark:text-white">
+          <h3 className="font-bold text-base text-slate-900 dark:text-white">
             Instant `.ICS` & Google Calendar
           </h3>
-          <p className="text-xs text-[#64748B] dark:text-slate-400 leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
             Extracted event invitations convert directly into downloadable `.ics` calendar files & Google Calendar links.
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-2">
-          <div className="w-10 h-10 rounded-xl bg-[#FEE2E2] dark:bg-rose-950 text-[#DC2626] flex items-center justify-center">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+          <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-200 dark:border-rose-800/50">
             <span className="material-symbols-outlined text-2xl">local_shipping</span>
           </div>
-          <h3 className="font-bold text-base text-[#0F172A] dark:text-white">
+          <h3 className="font-bold text-base text-slate-900 dark:text-white">
             Package Tracking & Maps
           </h3>
-          <p className="text-xs text-[#64748B] dark:text-slate-400 leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
             Extract tracking numbers for UPS, FedEx, Amazon & open locations instantly in Google Maps.
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-2">
-          <div className="w-10 h-10 rounded-xl bg-[#E0E7FF] dark:bg-indigo-950 text-[#4F46E5] flex items-center justify-center">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+          <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-200 dark:border-indigo-800/50">
             <span className="material-symbols-outlined text-2xl">sync</span>
           </div>
-          <h3 className="font-bold text-base text-[#0F172A] dark:text-white">
+          <h3 className="font-bold text-base text-slate-900 dark:text-white">
             Realtime Multi-Device Sync
           </h3>
-          <p className="text-xs text-[#64748B] dark:text-slate-400 leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
             Snapshots and extracted insights sync live across your phone, tablet, and desktop browser.
           </p>
         </div>
       </section>
 
       {/* Sample Screenshots Shelf */}
-      <section className="bg-white dark:bg-slate-800/90 rounded-2xl p-6 border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-bold text-lg text-[#0F172A] dark:text-white flex items-center gap-2">
-              <span>⚡</span> Try Sample Screenshots
-            </h2>
-            <p className="text-xs text-[#64748B] dark:text-slate-400">
-              Tap any sample image below to see Hugging Face Vision AI extraction in action
-            </p>
+      {SAMPLE_SCANS.length > 0 && (
+        <section className="bg-white dark:bg-slate-800/90 rounded-2xl p-6 border border-[#E2E8F0] dark:border-slate-700 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-bold text-lg text-[#0F172A] dark:text-white flex items-center gap-2">
+                <span>⚡</span> Try Sample Screenshots
+              </h2>
+              <p className="text-xs text-[#64748B] dark:text-slate-400">
+                Tap any sample image below to see AI extraction in action
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {SAMPLE_SCANS.slice(0, 3).map((sample) => (
-            <button
-              key={sample.id}
-              onClick={() => onAnalyzeImage(sample.imageUrl, sample.title, customPrompt)}
-              className="group relative flex flex-col bg-[#F8FAFC] dark:bg-slate-800/90 rounded-xl p-3 border border-[#E2E8F0] dark:border-slate-700 hover:border-[#2563EB] hover:shadow-md transition-all text-left overflow-hidden active:scale-95"
-            >
-              <div className="w-full aspect-video rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-700 mb-2 relative">
-                <img
-                  src={sample.imageUrl}
-                  alt={sample.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
-                  <span className="text-[10px] text-white bg-black/70 px-2 py-0.5 rounded-md font-mono font-medium">
-                    {sample.category}
-                  </span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {SAMPLE_SCANS.slice(0, 3).map((sample) => (
+              <button
+                key={sample.id}
+                onClick={() => onAnalyzeImage(sample.imageUrl, sample.title, customPrompt)}
+                className="group relative flex flex-col bg-[#F8FAFC] dark:bg-slate-800/90 rounded-xl p-3 border border-[#E2E8F0] dark:border-slate-700 hover:border-[#2563EB] hover:shadow-md transition-all text-left overflow-hidden active:scale-95"
+              >
+                <div className="w-full aspect-video rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-700 mb-2 relative">
+                  <img
+                    src={sample.imageUrl}
+                    alt={sample.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
+                    <span className="text-[10px] text-white bg-black/70 px-2 py-0.5 rounded-md font-mono font-medium">
+                      {sample.category}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <span className="text-xs font-bold text-[#0F172A] dark:text-white line-clamp-1">
-                {sample.title}
-              </span>
-              <span className="text-[11px] text-[#64748B] dark:text-slate-400 line-clamp-1 mt-0.5">
-                {sample.insights[0]?.subtitle || sample.summary}
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
+                <span className="text-xs font-bold text-[#0F172A] dark:text-white line-clamp-1">
+                  {sample.title}
+                </span>
+                <span className="text-[11px] text-[#64748B] dark:text-slate-400 line-clamp-1 mt-0.5">
+                  {sample.insights[0]?.subtitle || sample.rawText || ""}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Realtime Recent Scans Activity Section */}
       <section className="space-y-4">
@@ -354,7 +356,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               Paste Image URL
             </h3>
             <p className="text-xs text-[#64748B] dark:text-slate-400 mb-4">
-              Enter a direct image link to perform Hugging Face Vision AI extraction.
+              Enter a direct image link to perform AI Vision extraction.
             </p>
             <form onSubmit={handlePasteUrlSubmit} className="space-y-4">
               <input

@@ -56,6 +56,64 @@ export const ScanDetailModal: React.FC<ScanDetailModalProps> = ({
     }
   };
 
+  // Compound Action Executor
+  const executeAllCompoundActions = (insight: InsightItem) => {
+    showToast(`⚡ Executing compound action chain...`);
+    if (insight.actions && insight.actions.length > 0) {
+      insight.actions.forEach((act, idx) => {
+        setTimeout(() => {
+          if (act.url) {
+            window.open(act.url, "_blank");
+          } else if (act.type === "calendar") {
+            downloadIcsFile(insight);
+          } else if (act.type === "maps") {
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(insight.location || insight.title)}`, "_blank");
+          } else if (act.type === "tracking") {
+            window.open(`https://www.google.com/search?q=track+${encodeURIComponent(insight.trackingNumber || insight.title)}`, "_blank");
+          }
+        }, idx * 600);
+      });
+    } else {
+      handleAction(insight);
+    }
+  };
+
+  // Webhook Dispatcher
+  const handleDispatchWebhook = async (insight: InsightItem) => {
+    const webhookUrl = localStorage.getItem("WEBHOOK_URL");
+    if (!webhookUrl) {
+      showToast("⚠️ Please configure a Webhook URL in Settings first!");
+      return;
+    }
+
+    showToast("🚀 Dispatching payload to custom Webhook...");
+    try {
+      const res = await fetch("/api/dispatch-webhook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          webhookUrl,
+          payload: {
+            event: "screenshot_action_extracted",
+            timestamp: new Date().toISOString(),
+            scanId: scan?.id,
+            scanTitle: scan?.title,
+            insight,
+          },
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        showToast("✓ Webhook payload dispatched successfully!");
+      } else {
+        showToast(`❌ Webhook error: ${data.error || "Failed"}`);
+      }
+    } catch (err: any) {
+      showToast(`❌ Dispatch failed: ${err.message || "Network Error"}`);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-[#0F172A]/70 backdrop-blur-xs flex justify-center items-center p-3 sm:p-6 overflow-y-auto">
       {/* Toast popup */}
@@ -79,8 +137,8 @@ export const ScanDetailModal: React.FC<ScanDetailModalProps> = ({
             <h2 className="font-headline-md text-base font-bold text-[#0F172A] dark:text-white">
               Scan Detail & Insights
             </h2>
-            <span className="bg-[#FEF3C7] dark:bg-amber-950 text-[#D97706] text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
-              HF AI
+            <span className="bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border border-blue-200 dark:border-blue-800">
+              AI Vision
             </span>
           </div>
           <button
@@ -113,7 +171,7 @@ export const ScanDetailModal: React.FC<ScanDetailModalProps> = ({
                   Analyzing Screenshot...
                 </h3>
                 <p className="text-xs text-[#64748B] dark:text-slate-400">
-                  Hugging Face Vision AI extracting actionable intelligence
+                  Extracting actionable intelligence with AI...
                 </p>
               </div>
             </div>
@@ -223,7 +281,7 @@ export const ScanDetailModal: React.FC<ScanDetailModalProps> = ({
                           <span>{insight.type}</span>
                         </div>
                         <span className="text-[10px] text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-slate-700 px-2 py-0.5 rounded font-medium">
-                          Hugging Face AI Verified
+                          AI Verified
                         </span>
                       </div>
 
@@ -251,42 +309,90 @@ export const ScanDetailModal: React.FC<ScanDetailModalProps> = ({
                         )}
                       </div>
 
-                      <div className="pl-2 pt-1 flex flex-col sm:flex-row gap-2">
-                        <button
-                          onClick={() => handleAction(insight)}
-                          className={`flex-1 text-xs font-semibold h-10 rounded-lg flex items-center justify-center gap-2 transition-all active:scale-95 ${
-                            insight.completed
-                              ? "bg-[#F1F5F9] dark:bg-slate-700 text-[#64748B] dark:text-slate-400"
-                              : "bg-[#2563EB] text-white hover:bg-[#1D4ED8]"
-                          }`}
-                        >
-                          <span className="material-symbols-outlined text-[18px]">
-                            {insight.actionType === "tracking"
-                              ? "location_searching"
-                              : insight.actionType === "calendar"
-                              ? "calendar_add_on"
-                              : insight.actionType === "maps"
-                              ? "map"
-                              : insight.actionType === "expense"
-                              ? "account_balance_wallet"
-                              : "task_alt"}
-                          </span>
-                          {insight.completed ? "Done" : insight.actionLabel}
-                        </button>
+                      {/* Compound Actions & Execution Bar */}
+                      <div className="pl-2 pt-1 flex flex-col gap-2">
+                        {/* Render Multi-Action Compound Chain Pills */}
+                        {insight.actions && insight.actions.length > 0 ? (
+                          <div className="space-y-2">
+                            <span className="text-[11px] font-bold text-slate-400 block">
+                              ⚡ Compound Action Chain ({insight.actions.length}):
+                            </span>
+                            <div className="flex flex-wrap gap-2">
+                              {insight.actions.map((act) => (
+                                <button
+                                  key={act.id || act.label}
+                                  onClick={() => {
+                                    if (act.url) {
+                                      window.open(act.url, "_blank");
+                                    } else {
+                                      handleAction(insight);
+                                    }
+                                  }}
+                                  className="px-3 py-1.5 bg-blue-950 text-blue-300 hover:bg-blue-900 border border-blue-800/60 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 shadow-2xs"
+                                >
+                                  <span>🚀</span>
+                                  <span>{act.label}</span>
+                                </button>
+                              ))}
+                            </div>
 
-                        {/* Additional Quick .ICS Action for Events */}
-                        {insight.type === "event" && (
-                          <button
-                            onClick={() => {
-                              downloadIcsFile(insight);
-                              showToast(`🗓️ Downloaded .ICS file for "${insight.title}"!`);
-                            }}
-                            className="px-3 text-xs font-semibold h-10 rounded-lg bg-[#DBEAFE] dark:bg-blue-950 text-[#1E40AF] dark:text-blue-300 hover:bg-[#BFDBFE] transition-all flex items-center justify-center gap-1 shrink-0"
-                            title="Download .ICS file"
-                          >
-                            <span>📥 .ICS</span>
-                          </button>
+                            <button
+                              onClick={() => executeAllCompoundActions(insight)}
+                              className="w-full text-xs font-bold h-9 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md mt-1"
+                            >
+                              <span>⚡ Execute All Compound Actions</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col sm:flex-row gap-2">
+                            <button
+                              onClick={() => handleAction(insight)}
+                              className={`flex-1 text-xs font-semibold h-10 rounded-lg flex items-center justify-center gap-2 transition-all active:scale-95 ${
+                                insight.completed
+                                  ? "bg-[#F1F5F9] dark:bg-slate-700 text-[#64748B] dark:text-slate-400"
+                                  : "bg-[#2563EB] text-white hover:bg-[#1D4ED8]"
+                              }`}
+                            >
+                              <span className="material-symbols-outlined text-[18px]">
+                                {insight.actionType === "tracking"
+                                  ? "location_searching"
+                                  : insight.actionType === "calendar"
+                                  ? "calendar_add_on"
+                                  : insight.actionType === "maps"
+                                  ? "map"
+                                  : insight.actionType === "expense"
+                                  ? "account_balance_wallet"
+                                  : "task_alt"}
+                              </span>
+                              {insight.completed ? "Done" : (insight.actionLabel || "Execute Action")}
+                            </button>
+                          </div>
                         )}
+
+                        {/* Webhook & ICS Actions */}
+                        <div className="flex items-center gap-2 pt-1 border-t border-slate-700/50">
+                          <button
+                            onClick={() => handleDispatchWebhook(insight)}
+                            className="flex-1 px-3 text-xs font-semibold h-8 rounded-lg bg-indigo-950/80 text-indigo-300 hover:bg-indigo-900 border border-indigo-800/60 transition-all flex items-center justify-center gap-1.5"
+                            title="Dispatch structured JSON payload to custom Webhook URL"
+                          >
+                            <span>🚀</span>
+                            <span>Dispatch Webhook</span>
+                          </button>
+
+                          {insight.type === "event" && (
+                            <button
+                              onClick={() => {
+                                downloadIcsFile(insight);
+                                showToast(`🗓️ Downloaded .ICS file for "${insight.title}"!`);
+                              }}
+                              className="px-3 text-xs font-semibold h-8 rounded-lg bg-blue-950 text-blue-300 hover:bg-blue-900 border border-blue-800/50 transition-all flex items-center justify-center gap-1 shrink-0"
+                              title="Download .ICS file"
+                            >
+                              <span>📥 .ICS</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

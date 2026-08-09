@@ -12,6 +12,7 @@ interface HeaderProps {
   onToggleDarkMode?: () => void;
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
+  onOpenQRModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -25,21 +26,22 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleDarkMode,
   searchQuery = "",
   setSearchQuery,
+  onOpenQRModal,
 }) => {
   const onlineCount = activeDevices.filter((d) => d.isOnline).length || 1;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0B0F19]/80 backdrop-blur-xl border-b border-slate-800/80 transition-all duration-200 shadow-md">
-      <div className="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#0B0F19]/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 transition-all duration-200 shadow-sm">
+      <div className="max-w-7xl mx-auto h-16 px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand & Page Title */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {onBack ? (
             <button
               onClick={onBack}
-              className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-800 transition-colors text-white"
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-800 dark:text-white"
               aria-label="Back"
             >
-              <span className="material-symbols-outlined text-[22px]">arrow_back</span>
+              <span className="material-symbols-outlined text-[20px]">arrow_back</span>
             </button>
           ) : (
             <div className="flex items-center gap-2">
@@ -49,15 +51,15 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
           <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <h1 className="font-headline-md text-base sm:text-lg text-white font-bold leading-tight tracking-tight">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <h1 className="font-headline-md text-sm sm:text-lg text-slate-900 dark:text-white font-bold leading-tight tracking-tight truncate max-w-[140px] sm:max-w-none">
                 {title}
               </h1>
-              <span className="bg-blue-950/80 text-blue-300 text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-blue-800/50 hidden sm:inline-flex items-center gap-1">
+              <span className="bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800/50 hidden sm:inline-flex items-center gap-1">
                 <span>✨</span> Smart Vision
               </span>
             </div>
-            <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
                 <span
                   className={`animate-ping absolute inline-flex h-full w-full rounded-full ${
@@ -75,7 +77,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Center Search Input (Desktop) */}
+        {/* Center Search Input (Desktop & Tablet) */}
         {setSearchQuery && (
           <div className="hidden md:flex flex-1 max-w-md items-center relative">
             <span className="material-symbols-outlined absolute left-3.5 text-[18px] text-slate-400">
@@ -86,12 +88,12 @@ export const Header: React.FC<HeaderProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search actions, orders, events, locations..."
-              className="w-full pl-9 pr-4 py-1.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-xs outline-none focus:border-blue-500 text-white placeholder-slate-400 transition-all shadow-inner"
+              className="w-full pl-9 pr-8 py-1.5 bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs outline-none focus:border-blue-500 text-slate-900 dark:text-white placeholder-slate-400 transition-all shadow-inner"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2 text-xs text-slate-400 hover:text-white"
+                className="absolute right-2.5 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-white"
               >
                 ✕
               </button>
@@ -100,12 +102,12 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         {/* Right Tools & Sync Pill */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Dark Mode Toggle */}
           {onToggleDarkMode && (
             <button
               onClick={onToggleDarkMode}
-              className="p-2 rounded-xl bg-slate-900/90 border border-slate-700/80 text-amber-400 hover:bg-slate-800 transition-all text-xs flex items-center justify-center shadow-xs"
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 text-amber-500 dark:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-xs flex items-center justify-center shadow-xs active:scale-95"
               title="Toggle Dark / Light Theme"
             >
               <span className="material-symbols-outlined text-[18px]">
@@ -114,17 +116,28 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
+          {/* QR Code Button */}
+          {onOpenQRModal && (
+            <button
+              onClick={onOpenQRModal}
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 text-blue-600 dark:text-blue-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all text-xs flex items-center justify-center shadow-xs active:scale-95"
+              title="Show Phone QR Code"
+            >
+              <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
+            </button>
+          )}
+
           {/* Room Sync Selector Button */}
           <button
             onClick={onOpenRoomModal}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-200 font-label-sm text-[12px] font-medium transition-all shadow-xs active:scale-95"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/90 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 text-slate-800 dark:text-slate-200 text-[11px] sm:text-[12px] font-medium transition-all shadow-xs active:scale-95"
           >
-            <span className="material-symbols-outlined text-[16px] text-blue-400">sync</span>
-            <span className="text-slate-400 hidden sm:inline">Sync Room:</span>
-            <span className="font-bold text-blue-400 font-mono">
+            <span className="material-symbols-outlined text-[16px] text-blue-500 dark:text-blue-400">sync</span>
+            <span className="text-slate-500 dark:text-slate-400 hidden sm:inline">Sync Room:</span>
+            <span className="font-bold text-blue-600 dark:text-blue-400 font-mono">
               {roomCode}
             </span>
-            <span className="ml-1 bg-blue-950 text-blue-300 text-[10px] px-2 py-0.5 rounded-full font-semibold">
+            <span className="ml-0.5 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full font-semibold">
               {onlineCount} {onlineCount === 1 ? "device" : "devices"}
             </span>
           </button>

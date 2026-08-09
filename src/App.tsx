@@ -12,6 +12,8 @@ import {
   AppNotification,
   ActiveTab,
 } from "./types";
+import { QRCodeModal } from "./components/QRCodeModal";
+import { sanitizeImageData } from "./lib/privacyShield";
 import {
   subscribeToScans,
   saveScanToFirestore,
@@ -22,7 +24,7 @@ import {
   subscribeToNotifications,
   addNotificationToFirestore,
   markNotificationAsRead,
-} from "./lib/firebase";
+} from "./lib/storage";
 import { SAMPLE_SCANS } from "./lib/sampleData";
 
 export default function App() {
@@ -40,9 +42,14 @@ export default function App() {
     return isMobile ? "Mobile Phone" : "Desktop Browser";
   });
 
-  const [deviceId] = useState<string>(
-    () => `dev-${Math.random().toString(36).substring(2, 9)}`
-  );
+  const [deviceId] = useState<string>(() => {
+    let id = localStorage.getItem("DEVICE_ID");
+    if (!id) {
+      id = `dev-${Math.random().toString(36).substring(2, 9)}`;
+      localStorage.setItem("DEVICE_ID", id);
+    }
+    return id;
+  });
 
   // Firestore Synced States
   const [scans, setScans] = useState<ScanItem[]>([]);
@@ -50,10 +57,11 @@ export default function App() {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [isOnline, setIsOnline] = useState(true);
 
-  // Active Scan Detail Modal State
+  // Modal Controls
   const [selectedScan, setSelectedScan] = useState<ScanItem | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzingStep, setAnalyzingStep] = useState(0);
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
 
   // Hugging Face Token & Model state stored in LocalStorage
   const [hfToken, setHfTokenState] = useState<string>(() => {
@@ -78,13 +86,6 @@ export default function App() {
   useEffect(() => {
     const unsubscribeScans = subscribeToScans(roomCode, (data) => {
       setScans(data);
-
-      // Auto-seed sample data if room has 0 items
-      if (data.length === 0) {
-        SAMPLE_SCANS.forEach((sample) => {
-          saveScanToFirestore({ ...sample, roomCode });
-        });
-      }
     });
 
     return () => unsubscribeScans();
@@ -144,9 +145,20 @@ export default function App() {
 
   // Dark mode & search state
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    return localStorage.getItem("THEME") === "dark";
+    const saved = localStorage.getItem("THEME");
+    return saved ? saved === "dark" : true;
   });
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+      document.documentElement.style.colorScheme = "dark";
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.style.colorScheme = "light";
+    }
+  }, [isDarkMode]);
 
   const toggleDarkMode = () => {
     const nextTheme = !isDarkMode;
@@ -154,23 +166,34 @@ export default function App() {
     localStorage.setItem("THEME", nextTheme ? "dark" : "light");
   };
 
-  // Handle AI Screenshot Analysis (Calls Express server Hugging Face endpoint)
+  // Handle AI Screenshot Analysis
   const handleAnalyzeImage = async (fileOrBase64: string, name?: string, customPrompt?: string) => {
     setIsAnalyzing(true);
     setSelectedScan(null);
+
+    // Apply Client-Side Privacy Shield PII Redaction if enabled
+    let activeImageBase64 = fileOrBase64;
+    const isPrivacyShieldOn = localStorage.getItem("PRIVACY_SHIELD_ENABLED") === "true";
+    if (isPrivacyShieldOn && fileOrBase64.startsWith("data:image")) {
+      try {
+        activeImageBase64 = await sanitizeImageData(fileOrBase64);
+      } catch (err) {
+        console.warn("Privacy Shield pre-processing failed, using original base64:", err);
+      }
+    }
 
     // Create temporary scan item
     const tempScanId = `scan-${Date.now()}`;
     const initialTempScan: ScanItem = {
       id: tempScanId,
       title: name ? `Analyzing "${name}"` : "Analyzing Screenshot",
-      imageUrl: fileOrBase64,
+      imageUrl: activeImageBase64,
       category: "tasks",
       timestamp: new Date().toISOString(),
       roomCode,
       status: "analyzing",
       confidence: 90,
-      rawText: "Processing image with Hugging Face Vision AI...",
+      rawText: "Analyzing image with AI...",
       insights: [],
       deviceInfo: {
         deviceName,
@@ -188,7 +211,7 @@ export default function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          imageBase64: fileOrBase64,
+          imageBase64: activeImageBase64,
           mimeType: "image/png",
           prompt: customPrompt || "Analyze this screenshot and extract actionable events, orders, payments, tasks, and locations.",
           hfToken,
@@ -248,7 +271,7 @@ export default function App() {
         roomCode,
         status: "completed",
         confidence: 94,
-        rawText: "Extracted details from uploaded screenshot via Hugging Face Vision engine.",
+        rawText: "Extracted details from uploaded screenshot.",
         insights: [
           {
             id: `insight-${Date.now()}`,
@@ -354,7 +377,7 @@ export default function App() {
 
   return (
     <div className={`${isDarkMode ? "dark" : ""}`}>
-      <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 text-[#0F172A] dark:text-white flex flex-col font-body-md select-none transition-colors duration-200">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white flex flex-col font-body-md select-none transition-colors duration-200">
         {/* Top Header */}
         <Header
           title={
@@ -374,6 +397,7 @@ export default function App() {
           onToggleDarkMode={toggleDarkMode}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
+          onOpenQRModal={() => setIsQRModalOpen(true)}
         />
 
         {/* Main View Container */}
@@ -416,10 +440,17 @@ export default function App() {
               isOnline={isOnline}
               onSeedSampleData={handleSeedSampleData}
               onClearHistory={handleClearHistory}
+              onOpenQRModal={() => setIsQRModalOpen(true)}
             />
           )}
         </main>
 
+      {/* Zero-Login QR Peer Sync Modal */}
+      <QRCodeModal
+        isOpen={isQRModalOpen}
+        roomCode={roomCode}
+        onClose={() => setIsQRModalOpen(false)}
+      />
 
       {/* Detail & AI Analysis Modal */}
       {(selectedScan || isAnalyzing) && (
