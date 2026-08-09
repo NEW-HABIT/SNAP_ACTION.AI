@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ScanItem, InsightItem } from "../types";
+import { LiveMapTrackingCard } from "./LiveMapTrackingCard";
 import {
   getGoogleCalendarLink,
   downloadIcsFile,
@@ -306,6 +307,15 @@ export const ScanDetailModal: React.FC<ScanDetailModalProps> = ({
                           <p className="text-xs text-[#0F172A] dark:text-slate-200 font-medium mt-1">
                             📍 Location: {insight.location}
                           </p>
+                        )}
+
+                        {/* Live Map Tracking Embed */}
+                        {(insight.location || insight.type === "location" || insight.type === "order" || insight.type === "flight") && (
+                          <LiveMapTrackingCard
+                            locationName={insight.location || insight.title}
+                            trackingNumber={insight.trackingNumber}
+                            title={insight.title}
+                          />
                         )}
                       </div>
 

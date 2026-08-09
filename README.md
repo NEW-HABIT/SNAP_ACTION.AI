@@ -95,7 +95,7 @@ Keep sensitive financial and personal data safe before it leaves your device.
    ```bash
    npm run dev
    ```
-   Open your browser at [http://localhost:3000](http://localhost:3000).
+   
 
 ---
 
