@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { Header } from "./components/Header";
 import { Navbar } from "./components/Navbar";
 import { HomeView } from "./components/HomeView";
@@ -472,6 +473,9 @@ export default function App() {
         setActiveTab={setActiveTab}
         unreadCount={unreadCount}
       />
+      
+      {/* Vercel Web Analytics */}
+      <Analytics />
       </div>
     </div>
   );
